@@ -1,0 +1,7 @@
+{
+  "name": "SEO & Merchant Automation Desktop (Wails + Go)",
+  "description": "基于 gcm_google_tool 架构 (Golang + Wails v2 + Vue 3) 的外贸元器件 (GlobalChipMall.com) Google 自动化桌面工具：结合 MSSQL 数据库持久化配置、产品详情页与站点地图，支持通过本地 VPN 代理 (http://127.0.0.1:10081) 强制调用全量 Google API、本地存量 XML 站点地图时间戳 (<lastmod>) 刷新与写回，以及产品链接访问状态高并发深度验证。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
