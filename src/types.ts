@@ -31,15 +31,21 @@ export interface QuotaStatus {
 
 export interface SitemapItem {
   id: string;
-  sitemapUrl: string;
-  type: 'sitemap_index' | 'pdp_sitemap' | 'category_sitemap' | 'news_sitemap';
+  sitemapUrl?: string;
+  url?: string;
+  type: 'sitemap_index' | 'pdp_sitemap' | 'category_sitemap' | 'news_sitemap' | 'PRODUCTS_XML';
   totalUrls: number;
-  indexedCount: number;
-  submittedAt: string;
-  lastGoogleCrawl: string;
+  indexedCount?: number;
+  indexedUrls?: number;
+  submittedAt?: string;
+  lastSubmittedAt?: string;
+  lastGoogleCrawl?: string;
   status: 'SUCCESS' | 'WARNING' | 'ERROR';
-  lastResponseStatus: number;
-  autoPingEnabled: boolean;
+  issuesCount?: number;
+  pingGoogleStatus?: string;
+  lastPingGoogleAt?: string;
+  lastResponseStatus?: number;
+  autoPingEnabled?: boolean;
   warnings?: string[];
 }
 
@@ -47,6 +53,7 @@ export interface ProductDetailPage {
   id: string;
   sku: string;
   name: string;
+  title?: string;
   url: string;
   category: string;
   price: number;
@@ -70,7 +77,7 @@ export interface ProductDetailPage {
   schemaValid: boolean;
   schemaErrors?: string[];
   // Google Merchant Center sync status
-  merchantSyncStatus: 'SYNCED' | 'MISMATCH' | 'DISAPPROVED' | 'NOT_SUBMITTED';
+  merchantSyncStatus: 'SYNCED' | 'MISMATCH' | 'DISAPPROVED' | 'NOT_SUBMITTED' | 'PRICE_MISMATCH' | 'STOCK_MISMATCH';
   merchantPrice?: number;
   merchantInStock?: boolean;
 }
@@ -79,29 +86,39 @@ export interface MerchantProductItem {
   id: string;
   sku: string;
   title: string;
-  link: string;
-  imageLink: string;
-  price: number;
+  link?: string;
+  pdpUrl?: string;
+  imageLink?: string;
+  price?: number;
+  pdpPrice?: number;
+  merchantPrice?: number;
   salePrice?: number;
   currency: string;
-  availability: 'in_stock' | 'out_of_stock' | 'preorder';
-  condition: 'new' | 'refurbished' | 'used';
-  brand: string;
-  gtin: string;
+  availability?: 'in_stock' | 'out_of_stock' | 'preorder';
+  pdpInStock?: boolean;
+  merchantInStock?: boolean;
+  condition?: 'new' | 'refurbished' | 'used';
+  brand?: string;
+  category?: string;
+  gtin?: string;
   approvalStatus: 'approved' | 'disapproved' | 'pending';
-  destinationStatuses: {
+  destinationStatuses?: {
     destination: string; // Shopping, Free Listings, etc.
     status: 'approved' | 'disapproved' | 'pending';
   }[];
-  itemLevelIssues: {
+  itemLevelIssues?: {
     code: string;
     description: string;
     severity: 'error' | 'warning';
     attributeName?: string;
   }[];
-  lastSyncTime: string;
+  lastSyncTime?: string;
+  lastSyncedAt?: string;
   hasPdpMismatch: boolean;
+  mismatchReason?: string;
   mismatchDetails?: string;
+  clicks30d?: number;
+  impressions30d?: number;
 }
 
 export interface SearchQueryRanking {
@@ -111,7 +128,7 @@ export interface SearchQueryRanking {
   productName: string;
   currentPosition: number;
   previousPosition: number;
-  positionChange: number; // e.g. +2, -1
+  positionChange?: number; // e.g. +2, -1
   clicks30d: number;
   impressions30d: number;
   ctr: number;
@@ -151,7 +168,16 @@ export interface AutomationRule {
 export interface SystemActivityLog {
   id: string;
   timestamp: string;
-  module: 'IndexingAPI' | 'MerchantCenter' | 'Sitemap' | 'RankTracker' | 'WailsIPC' | 'Automation' | 'Proxy';
+  module:
+    | 'IndexingAPI'
+    | 'MerchantCenter'
+    | 'Sitemap'
+    | 'RankTracker'
+    | 'WailsIPC'
+    | 'Automation'
+    | 'Proxy'
+    | 'MSSQL'
+    | 'System';
   level: 'info' | 'success' | 'warn' | 'error';
   message: string;
   details?: string;
@@ -196,6 +222,7 @@ export interface MssqlConnectionConfig {
   maxOpenConns: number;
   maxIdleConns: number;
   connMaxLifetimeMinutes: number;
+  connectionTimeoutMs?: number;
   connectionStatus: 'CONNECTED' | 'DISCONNECTED' | 'CONNECTING' | 'ERROR';
   serverVersion: string;
   lastPingLatencyMs: number;
@@ -231,8 +258,9 @@ export interface LocalPerformanceCacheStats {
   hitCount: number;
   missCount: number;
   hitRatio: number; // e.g. 94.8
-  evictionPolicy: 'LRU_TTL' | 'WRITE_THROUGH';
-  defaultTtlSeconds: number;
+  evictionPolicy: 'LRU' | 'LRU_TTL' | 'WRITE_THROUGH';
+  defaultTtlSeconds?: number;
+  ttlSeconds?: number;
   keys: LocalCacheKeyItem[];
 }
 
@@ -328,6 +356,7 @@ export interface LocalSitemapFile {
   fileSizeKb?: number;
   urlCount: number;
   lastModifiedOnDisk?: string;
+  lastModified?: string;
   currentLastmodTag: string;
   updatedLastmodTag?: string;
   rawXml: string;

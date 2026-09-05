@@ -67,6 +67,24 @@ export class StorageService {
     Object.values(STORAGE_KEYS).forEach((k) => localStorage.removeItem(k));
   }
 
+  public static clearAll(): void {
+    this.clearAllStorage();
+  }
+
+  public static loadProducts(): ProductDetailPage[] {
+    return this.loadFromStorage<ProductDetailPage[]>(STORAGE_KEYS.PRODUCTS, []);
+  }
+
+  public static saveProducts(products: ProductDetailPage[]): void {
+    this.saveToStorage<ProductDetailPage[]>(STORAGE_KEYS.PRODUCTS, products);
+  }
+
+  public static async restoreFromBackup(file: File): Promise<Record<string, any>> {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    return data;
+  }
+
   public static exportFullBackup(payload: Record<string, any>): void {
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: 'application/json',

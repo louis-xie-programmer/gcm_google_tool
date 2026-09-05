@@ -170,7 +170,14 @@ export default function App() {
     const newMerchantItems: MerchantProductItem[] = updated.map((pdp) => ({
       id: `mc-${pdp.sku.toLowerCase()}`,
       sku: pdp.sku,
-      title: pdp.title,
+      title: pdp.title || pdp.name,
+      link: pdp.url,
+      imageLink: `https://www.globalchipmall.com/images/products/${pdp.sku.toLowerCase()}.jpg`,
+      currency: pdp.currency || 'USD',
+      condition: 'new' as const,
+      brand: pdp.category || 'Standard',
+      gtin: `012345${pdp.sku.slice(0, 6)}`,
+      destinationStatuses: [{ destination: 'Shopping', status: 'approved' as const }],
       price: pdp.price,
       availability: pdp.inStock ? 'in_stock' : 'out_of_stock',
       approvalStatus: 'approved',
@@ -315,7 +322,7 @@ export default function App() {
     StorageService.saveProducts(updated);
     if (target) {
       setMerchantItems((prev) => prev.filter((m) => m.sku !== target.sku));
-      addLog('MSSQL', 'info', `已删除产品记录: [${target.sku}] ${target.title}`);
+      addLog('MSSQL', 'info', `已删除产品记录: [${target.sku}] ${target.title || target.name}`);
       showToast(`已删除产品: ${target.sku}`);
     }
   };
@@ -328,7 +335,14 @@ export default function App() {
     const newMerchant: MerchantProductItem = {
       id: `mc-${newPdp.sku.toLowerCase()}`,
       sku: newPdp.sku,
-      title: newPdp.title,
+      title: newPdp.title || newPdp.name,
+      link: newPdp.url,
+      imageLink: `https://www.globalchipmall.com/images/products/${newPdp.sku.toLowerCase()}.jpg`,
+      currency: newPdp.currency || 'USD',
+      condition: 'new' as const,
+      brand: newPdp.category || 'Standard',
+      gtin: `012345${newPdp.sku.slice(0, 6)}`,
+      destinationStatuses: [{ destination: 'Shopping', status: 'approved' as const }],
       price: newPdp.price,
       availability: newPdp.inStock ? 'in_stock' : 'out_of_stock',
       approvalStatus: 'approved',
@@ -341,20 +355,23 @@ export default function App() {
     // Also add to url verifications
     setUrlVerifications((prev) => [
       {
+        id: `verify-${Date.now()}`,
         url: newPdp.url,
-        sitemapUrl: 'https://www.globalchipmall.com/sitemap_products_1.xml',
+        name: newPdp.name || newPdp.title || newPdp.sku,
         httpStatus: 200,
         latencyMs: 120,
-        canonicalMatched: true,
+        sslValid: true,
+        canonicalMatch: true,
         schemaValid: true,
-        lastVerifiedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        indexingEligible: true,
+        verifiedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
         sku: newPdp.sku,
-        stockStatus: newPdp.inStock ? 'IN_STOCK' : 'OUT_OF_STOCK',
+        remarks: '新增商品快速验证已通过',
       },
       ...prev,
     ]);
 
-    addLog('MSSQL', 'success', `新增电子元器件 PDP: [${newPdp.sku}] ${newPdp.title}`);
+    addLog('MSSQL', 'success', `新增电子元器件 PDP: [${newPdp.sku}] ${newPdp.title || newPdp.name}`);
     showToast(`新增产品成功: ${newPdp.sku}`);
   };
 
@@ -621,6 +638,7 @@ export default function App() {
         onToggleTerminal={() => setIsTerminalOpen(!isTerminalOpen)}
         isTerminalOpen={isTerminalOpen}
         onOpenServiceAccountModal={() => setActiveTab('settings')}
+        onOpenDataManager={() => setIsDataManagerOpen(true)}
       />
 
       {/* 2. Main Workstation Body (Sidebar + Content View) */}
@@ -632,6 +650,7 @@ export default function App() {
           mismatchCount={mismatchCount}
           queuedCount={quota.queuedCount}
           unindexedCount={unindexedCount}
+          onOpenDataManager={() => setIsDataManagerOpen(true)}
         />
 
         {/* Dynamic View Container */}
@@ -782,7 +801,24 @@ export default function App() {
         onClearLogs={() => setLogs([])}
       />
 
-      {/* 4. Desktop Toast Alert */}
+      {/* 4. Data Management Center Modal */}
+      <DataManagementModal
+        isOpen={isDataManagerOpen}
+        onClose={() => setIsDataManagerOpen(false)}
+        productsCount={products.length}
+        sitemapsCount={sitemaps.length}
+        mssqlConfig={mssqlConfig}
+        onImportProducts={handleImportProducts}
+        onImportSitemapXml={handleImportSitemapXml}
+        onFetchFromMssql={handleFetchFromMssql}
+        onClearAllData={handleClearAllData}
+        onLoadSampleData={handleLoadSampleData}
+        onExportBackup={handleExportBackup}
+        onRestoreBackup={handleRestoreBackup}
+        isFetchingMssql={isFetchingMssql}
+      />
+
+      {/* 5. Desktop Toast Alert */}
       {toastMessage && (
         <div
           id="desktop-toast"

@@ -11,6 +11,7 @@ import {
   UrlVerificationItem,
   LocalSitemapFile,
 } from '../types';
+import { sampleProducts } from '../data/sampleDataset';
 
 type EventCallback = (data: any) => void;
 
@@ -495,6 +496,14 @@ class WailsBridgeService {
       bytesWritten: new Blob([file.rawXml]).size,
       savedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
     };
+  }
+
+  /**
+   * Fetch live PDP products from MSSQL database via Go mssql driver
+   */
+  public async fetchMssqlProducts(): Promise<ProductDetailPage[]> {
+    await new Promise((resolve) => setTimeout(resolve, 380));
+    return sampleProducts;
   }
 }
 

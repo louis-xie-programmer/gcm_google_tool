@@ -33,6 +33,7 @@ interface SidebarProps {
   mismatchCount: number;
   queuedCount: number;
   unindexedCount: number;
+  onOpenDataManager?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -41,6 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   mismatchCount,
   queuedCount,
   unindexedCount,
+  onOpenDataManager,
 }) => {
   const navItems = [
     {
@@ -189,6 +191,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             每 15 分钟自动对比 PDP 与 Google Merchant 数据，若检测到缺货即刻触发 200 配额内优先上报。
           </p>
         </div>
+
+        {onOpenDataManager && (
+          <button
+            id="btn-sidebar-open-data-manager"
+            onClick={onOpenDataManager}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors border border-blue-500/30 bg-blue-950/40 text-blue-300 hover:bg-blue-900/60 hover:text-white"
+            title="导入 CSV/URL、拉取 MSSQL 生产库、载入存量 XML 站点地图"
+          >
+            <Database className="w-3.5 h-3.5 text-blue-400" />
+            <span className="font-medium">数据管理与导入中心</span>
+          </button>
+        )}
 
         <button
           id="btn-nav-settings"
